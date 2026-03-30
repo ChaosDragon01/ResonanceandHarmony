@@ -1,0 +1,3 @@
+displayName = Resonance &amp; Harmony
+author = ChaosDragon01
+version = 0.1

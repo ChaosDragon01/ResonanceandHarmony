@@ -1,0 +1,35 @@
+# This file will automatically update with entries for new content after a build and reload.
+
+Items: {
+	SwordofExtermination: {
+		DisplayName: Sword of Extermination
+		Tooltip:
+			'''
+			Template of an item
+			Replacing this tooltip is duty 
+			It's snowing on Mt.Fuji
+			'''
+	}
+
+	WheelofHarmony: {
+		DisplayName: Wheel of Harmony
+		Tooltip: Empty At the moment
+	}
+
+	WheelOfResonance: {
+		Tooltip: ""
+		DisplayName: Wheel Of Resonance
+	}
+
+	WheelOfHarmony: {
+		Tooltip: ""
+		DisplayName: Wheel Of Harmony
+	}
+}
+
+Buffs: {
+	SwordOfExtermination: {
+		Description: Mods.ResonanceandHarmony.Buffs.SwordOfExtermination.Description
+		DisplayName: Sword Of Extermination
+	}
+}
