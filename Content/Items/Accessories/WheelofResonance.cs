@@ -12,22 +12,25 @@ namespace ResonanceandHarmony.Content.Items.Accessories
             Item.width = 20;
             Item.height = 20;
             Item.accessory = true;
-            Item.value = Item.buyPrice(gold: 1);
+            Item.value = Item.buyPrice(gold: 2);
             Item.rare = ItemRarityID.Blue;
         }
-
 
         public override void AddRecipes()
         {
             Recipe recipe = CreateRecipe();
-            recipe.AddIngredient(ItemID.Wood, 10);
-            recipe.AddTile(TileID.WorkBenches);
+            recipe.AddRecipeGroup(RecipeGroupID.GoldBar);
+            recipe.AddIngredient(ItemID.DemoniteBar, 6);
+            recipe.AddIngredient(ItemID.CrimtaneBar, 6);
+            recipe.AddRecipeGroup(RecipeGroupID.ShadowScale);
+            recipe.AddTile(TileID.Anvils);
             recipe.Register();
         }
 
         public override void UpdateAccessory(Player player, bool hideVisual)
         {
-            player.GetModPlayer<ResonancePlayer>().resonanceEquipped = true;
+            var modPlayer = player.GetModPlayer<ResonancePlayer>();
+            modPlayer.resonanceEquipped = true;
         }
     }
 }

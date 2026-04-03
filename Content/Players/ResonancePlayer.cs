@@ -1,3 +1,4 @@
+using Microsoft.Xna.Framework;
 using Terraria;
 using Terraria.ModLoader;
 using ResonanceandHarmony.Content.NPCs;
@@ -9,18 +10,36 @@ namespace ResonanceandHarmony.Content.Players
     {
         public bool resonanceEquipped;
         public bool harmonyEquipped;
+        public bool eightHandledWheelEquipped;
 
-        public float resonanceMeter; // 0 to 1 (50% = 0.5f)
+        public int phenomenaHitsDealt;
+        public int phenomenaHitsTaken;
+        public int adaptationClickCount;
+        public int adaptationHitCounter;
 
         public override void ResetEffects()
         {
             resonanceEquipped = false;
             harmonyEquipped = false;
+            eightHandledWheelEquipped = false;
         }
 
         public override void UpdateDead()
         {
-            resonanceMeter = 0f;
+            phenomenaHitsDealt = 0;
+            phenomenaHitsTaken = 0;
+            adaptationClickCount = 0;
+            adaptationHitCounter = 0;
+        }
+
+        private void RegisterAdaptationHit()
+        {
+            adaptationHitCounter++;
+            if (adaptationHitCounter >= 5)
+            {
+                adaptationHitCounter = 0;
+                adaptationClickCount = (adaptationClickCount + 1) % 8;
+            }
         }
 
         // -------------------------
@@ -28,26 +47,19 @@ namespace ResonanceandHarmony.Content.Players
         // -------------------------
         public override void OnHitNPC(NPC target, NPC.HitInfo hit, int damageDone)
         {
-            if (!resonanceEquipped)
+            if (!resonanceEquipped && !eightHandledWheelEquipped)
                 return;
 
             var npcData = target.GetGlobalNPC<ResonanceGlobalNPC>();
+            npcData.lastInteractionTick = Main.GameUpdateCount;
 
-            // Build meter
-            resonanceMeter += damageDone / 1000f; // placeholder scaling
+            npcData.damageAmp = MathHelper.Clamp(npcData.damageAmp + 0.05f, 0f, ResonanceGlobalNPC.MaxDamageAmp);
+            phenomenaHitsDealt++;
+            RegisterAdaptationHit();
 
-            // RNG: apply damage boost to THIS NPC
-            if (Main.rand.NextFloat() < 0.2f) // placeholder chance
+            if (npcData.damageAmp >= ResonanceGlobalNPC.MaxDamageAmp)
             {
-                npcData.damageAmp += 0.1f; // placeholder value
-            }
-
-            // Trigger Extermination debuff at 50%
-            if (resonanceMeter >= 0.5f)
-            {
-                // Fixed: Removed the lowercase "buffs." typo
                 target.AddBuff(ModContent.BuffType<SwordOfExtermination>(), 300);
-                resonanceMeter -= 0.5f;
             }
         }
 
@@ -56,10 +68,9 @@ namespace ResonanceandHarmony.Content.Players
         // -------------------------
         public override void OnHurt(Player.HurtInfo info)
         {
-            if (!harmonyEquipped)
+            if (!harmonyEquipped && !eightHandledWheelEquipped)
                 return;
 
-            // Fixed: Correctly fetch the attacker using SourceNPCIndex
             NPC attacker = null;
             if (info.DamageSource.SourceNPCIndex >= 0)
             {
@@ -70,27 +81,11 @@ namespace ResonanceandHarmony.Content.Players
                 return;
 
             var npcData = attacker.GetGlobalNPC<ResonanceGlobalNPC>();
+            npcData.lastInteractionTick = Main.GameUpdateCount;
 
-            float roll = Main.rand.NextFloat();
-
-            if (roll < 0.6f)
-            {
-                // Damage reduction
-                npcData.damageReduction += 0.1f; // placeholder
-            }
-            else if (roll < 0.9f)
-            {
-                // Heal %
-                int heal = (int)(info.Damage * 0.2f); // placeholder
-                Player.statLife += heal;
-                Player.HealEffect(heal);
-            }
-            else
-            {
-                // Immunity
-                Player.immune = true;
-                Player.immuneTime = 60;
-            }
+            npcData.damageReduction = MathHelper.Clamp(npcData.damageReduction + 0.05f, 0f, ResonanceGlobalNPC.MaxDamageReduction);
+            phenomenaHitsTaken++;
+            RegisterAdaptationHit();
         }
     }
 }
